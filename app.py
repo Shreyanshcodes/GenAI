@@ -1,3 +1,4 @@
+#https://www.analyticsvidhya.com/blog/2023/09/documents-with-langchain-and-deep-lake/
 from flask import Flask, request, jsonify, render_template
 import os
 import json
