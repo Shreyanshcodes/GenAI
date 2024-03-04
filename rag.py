@@ -3,6 +3,9 @@ from llama_index.core.ingestion import IngestionPipeline
 from llama_index.core.node_parser import TokenTextSplitter,SentenceSplitter
 from llama_index.embeddings.fastembed import FastEmbedEmbedding
 from llama_index.vector_stores.faiss import FaissVectorStore
+from llama_index.prompts import ChatPromptTemplate, ChatMessage, MessageRole
+from llama_index.core import StorageContext, load_index_from_storage
+
 import faiss
 
 #d is dimension of the embedding model to create a faiss index
@@ -37,5 +40,23 @@ print(f"Ingested {len(nodes)} Nodes")
 
 #creation of index
 index = VectorStoreIndex(nodes)
+index.storage_context.persist(persist_dir="index_store")
+storage_context = StorageContext.from_defaults(persist_dir="index_store")
+index = load_index_from_storage(storage_context)
 
 
+qa_prompt_tmpl_str=(
+    "Context information is below.\n"
+    "----------\n"
+    "{context_str}\n"
+    "----------\n"
+    "Given the context information and not prior knowledge, "
+    "answer the query considering yourself a car knowledge expert"
+    "Query: {query_str}\n"
+    "Answer: "
+)
+qa_prompt_tmpl = PromptTemplate(qa_prompt_tmpl_str)
+
+query_engine.update_prompts({
+    "response_synthesizer:text_qa_template":qa_prompt_tmpl
+})
